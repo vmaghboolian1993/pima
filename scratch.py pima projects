@@ -1,0 +1,49 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.svm import SVC, SVR
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+names = ['preg', 'plas', 'pres', 'skin', 'test', 'mass', 'pedi', 'age', 'class']
+data = pd.read_csv(url, names=names)
+X = data.drop('class', axis=1)
+y = data['class']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transfo
+def run_model(model, X_train, y_train, X_test, y_test, is_regression=True):
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    if is_regression:
+        mse = mean_squared_error(y_test, y_pred)
+        print(f"Mean Squared Error: {mse:.4f}")
+    else:
+        acc = accuracy_score(y_test, y_pred)
+        print(f"Accuracy: {acc:.4f}")
+models = [
+    (LogisticRegression(), False),
+    (LinearRegression(), True),
+    (DecisionTreeClassifier(), False),
+    (DecisionTreeRegressor(), True),
+    (RandomForestClassifier(), False),
+    (RandomForestRegressor(), True),
+    (SVC(), False),
+    (SVR(), True),
+    (KNeighborsClassifier(), False),
+    (KNeighborsRegressor(), True),
+    (GaussianNB(), False),
+    (MLPClassifier(max_iter=1000), False),
+    (MLPRegressor(max_iter=1000), True),
+]
+
+for model, is_regression in models:
+    print(f"Running {model.__class__.__name__}...")
+    run_model(model, X_train, y_train, X_test, y_test, is_regression)
+    print("---" * 10)
